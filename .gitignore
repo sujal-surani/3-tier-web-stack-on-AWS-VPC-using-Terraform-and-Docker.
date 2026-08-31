@@ -1,0 +1,18 @@
+.terraform/
+.terraform.*
+terraform.tfstate
+terraform.tfstate.backup
+*.tfvars
+*.tfvars.json
+
+# Docker & Dependencies
+.env
+node_modules/
+__pycache__/
+
+# AWS & Security keys
+*.pem
+*.key
+
+
+git.sh
