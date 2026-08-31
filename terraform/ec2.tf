@@ -1,6 +1,6 @@
 resource "aws_key_pair" "ec2_key_pair" {
-  key_name = "ec2-key_pair"
-  public_key = file("ec2-key_pair.pub")
+  key_name = "ec2_key_pair"
+  public_key = file("ec2_key_pair.pub")
 }
 
 
@@ -10,6 +10,7 @@ resource "aws_instance" "server" {
   subnet_id = aws_subnet.public-sub-1a.id
   vpc_security_group_ids = [ aws_security_group.ec2-sg.id ]
   key_name = aws_key_pair.ec2_key_pair.key_name
+  user_data = file("script.sh")
 
   tags = {
     Name = "3-tier-stack-server"

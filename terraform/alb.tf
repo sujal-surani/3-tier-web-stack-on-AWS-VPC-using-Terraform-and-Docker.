@@ -3,7 +3,7 @@ resource "aws_lb" "app_alb" {
   internal = false
   load_balancer_type = "application"
   security_groups = [aws_security_group.alb-sg.id]
-  subnets = [aws_subnets.public-sub-1a.id, aws_subnet.public-sub-1b ]
+  subnets = [aws_subnet.public-sub-1a.id, aws_subnet.public-sub-1b.id ]
   tags={
     Name = "3-tier-stack-alb"
   }
