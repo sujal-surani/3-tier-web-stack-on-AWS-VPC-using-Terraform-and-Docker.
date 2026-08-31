@@ -1,0 +1,58 @@
+services:
+  nginx:
+    image : nginx:alpine
+    container_name : proxy_gateway
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"
+      - "81:81"
+
+    depends_on:
+      - frontend
+      - backend
+
+    networks:
+      - public_net
+
+  frontend:
+    image: nginx:alpine 
+    container_name: web_frontend
+    command: /bin/sh -c "echo '<h1>Frontend Container Active</h1>' > /usr/share/nginx/html/index.html && nginx -g 'daemon off;'"
+    networks:
+      - public_net
+
+  backend:
+    image: traefik/whoami # A tiny test image that echoes HTTP requests back as text
+    container_name: api_backend
+    environment:
+      - DB_HOST=database
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASS=${DB_PASS:-secretpassword}
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - public_net
+      - private_net 
+    
+  database:
+    image: postgres:15-alpine
+    container_name: db_postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASS:-secretpassword}
+      POSTGRES_DB: myappdb
+    networks:
+      - private_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  public_net:  # NGINX, Frontend, and Backend can talk here
+    driver: bridge
+  private_net: # ONLY Backend and Database can talk here (Database is hidden from NGINX/Internet)
+    driver: bridge
